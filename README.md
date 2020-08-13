@@ -11,11 +11,20 @@ make
 ```
 Visit [solidity](https://solidity.readthedocs.io/en/latest/installing-solidity) for more information. Once compiled, the solc executable can be found in the `./build/solc/` directory. 
 
-To parse and compile a contract, use the build.sh script found in `./signalhandler/build.sh`. For more information on how to use this script, run:
+# Parsing and Compiling a Contract
+To parse the script, install perl and run parse.pl.
 ```
-./build.sh --help
+parse.pl <contract to be parsed> <parsed contract>
 ```
+To compile a contract, use the solc executable located at `./build/solc/solc`. From the root directory, run:
+```
+./build/solc/solc --overwrite -o <output dir> --asm --bin --abi <parsed contract>
+```
+
 # Signal and Handler Syntax
+Signals and handlers are declared with the `signal` and `handler` keywords. Signals have a list of methods associated included with it which are: `create_signal`, `delete_signal`, `emit`, and `delay`. Handlers also have a list of methods which are: `create_handler`, `delete_handler`, `bind`, and `detach`. For examples on what each method is parsed into, check out the example solidity file found in `./signalhandler/parser/example_parsed.sol`.
+
+... document syntax here ...
 
 # Compiler Modifications
 Not much was changed to the compiler. New opcodes are added to `./libevasm/instruction.h` and `./libevasm/instruction.cpp` so that a modified version of a EVM (Ethereum Virtual Machine) which can execute the new bytecodes. An implementation of a blockchain which supports signal and handler opcodes can be found [here](https://github.com/R-Song/conflux-rust). In this blockchain there is an implementation of an EVM capable of executing the new signal and handler opcodes.
