@@ -186,6 +186,18 @@ enum class Instruction: uint8_t
 	EIP615_PUTLOCAL,           ///< pop top of stack to local variable -- not part of Instructions.cpp
 	EIP615_GETLOCAL,           ///< push local variable to top of stack -- not part of Instructions.cpp
 
+	///////////////////////////////////////////////////////////////////////////
+	// Signal and Handlers begin
+	CREATESIGNAL  = 0xc0,	///< Create a new signal
+	CREATEHANDLER = 0xc1, 	///< Create a new slot
+	SIGBIND    	  = 0xc2,	///< Bind a slot to a signal 
+	SIGDETACH	  = 0xc3,	///< Detach a slot from a signal
+	SIGEMIT       = 0xc4,	///< Emit a signal to all listening slots
+	DELETESIGNAL  = 0xc5, 	///< Delete a signal
+	DELETEHANDLER = 0xc6,   ///< Delete a handler
+	// Signal and Handlers end
+	///////////////////////////////////////////////////////////////////////////
+
 	CREATE = 0xf0,		///< create a new account with associated code
 	CALL,				///< message-call into an account
 	CALLCODE,			///< message-call with another account's code only

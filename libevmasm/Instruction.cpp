@@ -166,6 +166,19 @@ std::map<std::string, Instruction> const solidity::evmasm::c_instructions =
 	{ "LOG2", Instruction::LOG2 },
 	{ "LOG3", Instruction::LOG3 },
 	{ "LOG4", Instruction::LOG4 },
+
+	///////////////////////////////////////////////////////////////////////////
+	// Signal and Handlers begin
+	{ "CREATESIGNAL", Instruction::CREATESIGNAL },
+	{ "CREATEHANDLER", Instruction::CREATEHANDLER },	
+	{ "SIGBIND", Instruction::SIGBIND },
+	{ "SIGDETACH", Instruction::SIGDETACH },	
+	{ "SIGEMIT", Instruction::SIGEMIT },
+	{ "DELETESIGNAL", Instruction::DELETESIGNAL },
+	{ "DELETEHANDLER", Instruction::DELETEHANDLER },	
+	// Signal and Handlers end
+	///////////////////////////////////////////////////////////////////////////
+
 	{ "CREATE", Instruction::CREATE },
 	{ "CALL", Instruction::CALL },
 	{ "CALLCODE", Instruction::CALLCODE },
@@ -312,6 +325,17 @@ static std::map<Instruction, InstructionInfo> const c_instructionInfo =
 	{ Instruction::LOG2,		{ "LOG2",			0, 4, 0, true, Tier::Special } },
 	{ Instruction::LOG3,		{ "LOG3",			0, 5, 0, true, Tier::Special } },
 	{ Instruction::LOG4,		{ "LOG4",			0, 6, 0, true, Tier::Special } },
+	///////////////////////////////////////////////////////////////////////////
+	// Signal and Slots begin
+	{ Instruction::CREATESIGNAL,	{ "CREATESIGNAL",	0, 1, 1, false, Tier::Special } },
+	{ Instruction::CREATEHANDLER,	{ "CREATEHANDLER",	0, 5, 1, false, Tier::Special } },
+	{ Instruction::SIGBIND,			{ "SIGBIND",		0, 3, 1, false, Tier::Special } },
+	{ Instruction::SIGDETACH,		{ "SIGDETACH",		0, 3, 1, false, Tier::Special } },
+	{ Instruction::SIGEMIT,	    	{ "SIGEMIT",		0, 3, 1, false, Tier::Special } },
+	{ Instruction::DELETESIGNAL,	{ "DELETESIGNAL",	0, 1, 1, false, Tier::Special } },
+	{ Instruction::DELETEHANDLER,	{ "DELETEHANDLER",	0, 1, 1, false, Tier::Special } },
+	// Signal and Slots end
+	///////////////////////////////////////////////////////////////////////////
 	{ Instruction::CREATE,		{ "CREATE",			0, 3, 1, true, Tier::Special } },
 	{ Instruction::CALL,		{ "CALL",			0, 7, 1, true, Tier::Special } },
 	{ Instruction::CALLCODE,	{ "CALLCODE",		0, 7, 1, true, Tier::Special } },

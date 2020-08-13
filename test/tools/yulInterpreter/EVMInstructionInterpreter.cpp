@@ -94,6 +94,17 @@ u256 EVMInstructionInterpreter::eval(
 	auto const& arg = _arguments;
 	switch (_instruction)
 	{
+	///////////////////////////////////////////////////////////////////////////
+	// Signal and Slots begin
+	case Instruction::CREATESIGNAL:	 return 0;
+	case Instruction::CREATEHANDLER: return 0;
+	case Instruction::SIGDETACH:	 return 0;
+	case Instruction::SIGBIND:		 return 0;
+	case Instruction::SIGEMIT:		 return 0;
+	case Instruction::DELETESIGNAL:	 return 0;
+	case Instruction::DELETEHANDLER: return 0;
+	// Signal and Slots end
+	///////////////////////////////////////////////////////////////////////////
 	case Instruction::STOP:
 		throw ExplicitlyTerminated();
 	// --------------- arithmetic ---------------

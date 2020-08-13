@@ -1,6 +1,9 @@
 commit_hash.txt
 prerelease.txt
 
+# Compiled test contracts
+*/out/
+
 # Compiled Object files
 *.slo
 *.lo
