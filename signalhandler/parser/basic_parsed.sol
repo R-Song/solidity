@@ -91,12 +91,14 @@ assembly {
         uint baz = 2;
 // Original code: Alert.emit(foo,bar,baz).delay(5);
 bytes memory abi_encoded_Alert_data = abi.encode(foo,bar,baz);
+uint abi_encoded_Alert_length = abi_encoded_Alert_data.length;
 assembly {
     mstore(
         0x00,
         sigemit(
             sload(Alert_key.slot), 
             abi_encoded_Alert_data,
+            abi_encoded_Alert_length,
             5
         )
     )

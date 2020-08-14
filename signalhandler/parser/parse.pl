@@ -174,12 +174,15 @@ CODE_SNIPPET
 <<"CODE_SNIPPET";
 // Original code: ${signal_name}.emit(${arg_string}).delay($delay_value);
 bytes memory abi_encoded_${signal_name}_data = abi.encode($arg_string);
+// This length is measured in bytes and is always a multiple of 32.
+uint abi_encoded_${signal_name}_length = abi_encoded_${signal_name}_data.length;
 assembly {
     mstore(
         0x00,
         sigemit(
             sload(${signal_name}_key.slot), 
             abi_encoded_${signal_name}_data,
+            abi_encoded_${signal_name}_length,
             $delay_value
         )
     )
