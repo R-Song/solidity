@@ -102,16 +102,14 @@ CODE_SNIPPET
 // Original code: ${handler_name}.create_handler("$method_prototype"$arg_string);
 set_${handler_name}_key();
 bytes32 ${handler_name}_method_hash = keccak256("$method_prototype");
-address ${handler_name}_sponsor = $arg_arr[1];
-uint ${handler_name}_gas_limit = $arg_arr[2];
-uint ${handler_name}_gas_ratio = $arg_arr[3];
+uint ${handler_name}_gas_limit = $arg_arr[1];
+uint ${handler_name}_gas_ratio = $arg_arr[2];
 assembly {
     mstore(
         0x00, 
         createhandler(
             sload(${handler_name}_key.slot), 
             ${handler_name}_method_hash, 
-            ${handler_name}_sponsor, 
             ${handler_name}_gas_limit, 
             ${handler_name}_gas_ratio
         )
@@ -170,7 +168,7 @@ CODE_SNIPPET
         $arg_string =~ s/\)\.(.+)//g;
         my @arg_arr = split(',', $arg_string);
         my ($delay_value) = $line =~ /delay\((.+)\)/;
-        my $code_snippet = 
+        my $code_snippet_with_args = 
 <<"CODE_SNIPPET";
 // Original code: ${signal_name}.emit(${arg_string}).delay($delay_value);
 bytes memory abi_encoded_${signal_name}_data = abi.encode($arg_string);
@@ -189,7 +187,27 @@ assembly {
 }
 ////////////////////
 CODE_SNIPPET
-        print {$write_fh} $code_snippet;
+        my $code_snippet_wo_args = 
+<<"CODE_SNIPPET";
+// Original code: ${signal_name}.emit().delay($delay_value);
+assembly {
+    mstore(
+        0x00,
+        sigemit(
+            sload(${signal_name}_key.slot), 
+            0,
+            0,
+            $delay_value
+        )
+    )
+}
+////////////////////
+CODE_SNIPPET
+        if ($arg_string eq "") {
+            print {$write_fh} $code_snippet_wo_args;
+        } else {
+            print {$write_fh} $code_snippet_with_args;
+        }
         next;
     }
 

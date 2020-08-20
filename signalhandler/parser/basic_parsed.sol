@@ -25,17 +25,15 @@ function set_AlertHandle_key() private {
     }
 
     function initialize() public {
-        address this_address = address(this);
 // Original code: Alert.create_signal();
 set_Alert_key();
 assembly {
     mstore(0x00, createsignal(sload(Alert_key.slot)))
 }
 ////////////////////
-// Original code: AlertHandle.create_handler("AlertHandleFunc(uint,string)",this_address,25,120);
+// Original code: AlertHandle.create_handler("AlertHandleFunc(uint,string)",25,120);
 set_AlertHandle_key();
 bytes32 AlertHandle_method_hash = keccak256("AlertHandleFunc(uint,string)");
-address AlertHandle_sponsor = this_address;
 uint AlertHandle_gas_limit = 25;
 uint AlertHandle_gas_ratio = 120;
 assembly {
@@ -44,7 +42,6 @@ assembly {
         createhandler(
             sload(AlertHandle_key.slot), 
             AlertHandle_method_hash, 
-            AlertHandle_sponsor, 
             AlertHandle_gas_limit, 
             AlertHandle_gas_ratio
         )
@@ -91,6 +88,7 @@ assembly {
         uint baz = 2;
 // Original code: Alert.emit(foo,bar,baz).delay(5);
 bytes memory abi_encoded_Alert_data = abi.encode(foo,bar,baz);
+// This length is measured in bytes and is always a multiple of 32.
 uint abi_encoded_Alert_length = abi_encoded_Alert_data.length;
 assembly {
     mstore(

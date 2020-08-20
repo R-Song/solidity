@@ -1,25 +1,30 @@
-pragma solidity ^0.6.9;
+pragma solidity ^0.7.0;
 
-// Testing bind and detach functionality.
+// This contract is used to test basic functionality of binding and detaching to signals.
 contract Emitter {
     signal Alert();
-    function send_alert() public view {
-        emitsig Alert().delay(0);
+    function emit_alert() public view {
+        Alert.emit().delay(0);
+    }
+    constructor() {
+        Alert.create_signal();
     }
 }
 contract Receiver {
-    uint data;
-    address source;
-    slot HandleAlert() {
-        data = 0;
+    uint updated;
+    handler Receive();
+    function update_data() public {
+        updated = 1;
+        return;
     }
-    function set_source(address addr) public {
-        source = addr;
+    function bind_to_alert(address source) public view {
+        Receive.bind(source, "Alert()");
     }
-    function bind_to_alert() public view {
-        HandleAlert.bind(source.Alert);
+    function detach_from_alert(address source) public view {
+        Receive.detach(source, "Alert()");
     }
-    function detach_from_alert() public view {
-        HandleAlert.detach(source.Alert);
+    constructor() {
+        Receive.create_handler("update_data()", 100000, 120);
+        updated = 0;
     }
 }

@@ -16,9 +16,8 @@ contract A {
     }
 
     function initialize() public {
-        address this_address = address(this);
         Alert.create_signal();
-        AlertHandle.create_handler("AlertHandleFunc(uint,string)", this_address, 25, 120);
+        AlertHandle.create_handler("AlertHandleFunc(uint,string)", 25, 120);
     }
 
     function cleanup() public {

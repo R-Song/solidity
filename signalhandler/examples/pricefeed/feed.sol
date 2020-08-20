@@ -1,81 +1,77 @@
-pragma solidity ^0.6.9;
+pragma solidity ^0.7.0;
 
-// Delayed price feed benchmark contract.
-// Describes a price update system using signals and slots.
-// Contracts A, and B all automatically update their prices when the
-// price oracle receives something on its external feed.
+// Contract acts as a one hour buffer for information from an oracle to reach receivers.
 // This is inspired by MakerDAO's osm.sol source file.
-
-// Contract acts as a one hour buffer for information from an oracle to reach receivers
 contract PriceOracleBuffer {
     // Number of block generation cycles between price updates
-    uint public constant ONE_HOUR_CONFLUX = 7200; // 3600/20
-    // Price feeds
-    uint cur;
-    uint nxt;
-    // Pseudo price feed. In a real production contract this would peek into
-    // an external oracle.
-    uint peeked_data;
+    uint256 public constant ONE_HOUR_CONFLUX = 7200;
+    // Delayed price feed
+    uint256 ready;
+    uint256 wait;
+    // Pseudo oracle
+    uint256 pseudo_oracle;
 
     // Price update signal
-    signal PriceFeedUpdate(uint price);
+    signal PriceFeedUpdate(uint256);
 
     // Function that queries the new price and sends an update signal
-    slot SendUpdate(uint unused) {
-        peeked_data = peeked_data + 1;
-        cur = nxt;
-        nxt = peeked_data;
-        emitsig PriceFeedUpdate(cur).delay(ONE_HOUR_CONFLUX);
+    handler UpdateHandler(uint256); 
+    
+    // handler function
+    function handle_update(uint256 /* unused */) public {
+        pseudo_oracle = pseudo_oracle + 1;
+        ready = wait;
+        wait = pseudo_oracle;
+        PriceFeedUpdate.emit(ready).delay(ONE_HOUR_CONFLUX);
     }
 
     // Constructor
-    constructor() public {
-        // Bind SendUpdate slot to the signal PriceFeedUpdate. This way the price feed is automatically
-        // updated every single hour. Feed is also then relayed to other receivers.
-        peeked_data = 0;
-        SendUpdate.bind(PriceFeedUpdate);
-        emitsig PriceFeedUpdate(0).delay(0);
+    constructor() {
+        address this_address = address(this);
+        UpdateHandler.create_handler("handle_update(uint256)", 1000000, 120);
+        PriceFeedUpdate.create_signal();
+        UpdateHandler.bind(this_address, "PriceFeedUpdate(uint256)");
+        PriceFeedUpdate.emit(0).delay(0);
+        pseudo_oracle = 0;
     }
 }
 
 // Both contracts RecieverA and RecieverB are listening for the new price
 contract ReceiverA {
-    // Address of PriceOracle
-    PriceOracleBuffer public oracle;
-    // Price
-    uint price;
-
-    slot RecievePrice(uint new_price) {
+    uint256 price;
+    handler ReceivePrice(uint256);    
+    function price_feed_handle(uint256 new_price) public {
         price = new_price;
     }
 
-    constructor(address oracle_addr) public {
-        oracle = PriceOracleBuffer(oracle_addr);
-        RecievePrice.bind(oracle.PriceFeedUpdate);
+    function bind_to_feed(address feed_address) public view {
+        ReceivePrice.bind(feed_address, "PriceFeedUpdate(uint256)");
     }
-    
-    function detach() public {
-        RecievePrice.detach(oracle.PriceFeedUpdate);
+    function detach_from_feed(address feed_address) public view {
+        ReceivePrice.detach(feed_address, "PriceFeedUpdate(uint256)");
+    }
+
+    constructor() {
+        ReceivePrice.create_handler("price_feed_handle(uint256)", 1000000, 120);
+        price = 0;
     }
 }
-
-// Identical to contract A. Should recieve the same price update.
 contract ReceiverB {
-    // Address of PriceOracle
-    PriceOracleBuffer public oracle;
-    // Price
-    uint price;
-
-    slot RecievePrice(uint new_price) {
+    uint256 price;
+    handler ReceivePrice(uint256);    
+    function price_feed_handle(uint256 new_price) public {
         price = new_price;
     }
 
-    constructor(address oracle_addr) public {
-        oracle = PriceOracleBuffer(oracle_addr);
-        RecievePrice.bind(oracle.PriceFeedUpdate);
+    function bind_to_feed(address feed_address) public view {
+        ReceivePrice.bind(feed_address, "PriceFeedUpdate(uint256)");
     }
-    
-    function detach() public {
-        RecievePrice.detach(oracle.PriceFeedUpdate);
+    function detach_from_feed(address feed_address) public view {
+        ReceivePrice.detach(feed_address, "PriceFeedUpdate(uint256)");
+    }
+
+    constructor() {
+        ReceivePrice.create_handler("price_feed_handle(uint256)", 1000000, 120);
+        price = 0;
     }
 }

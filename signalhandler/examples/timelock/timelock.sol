@@ -1,4 +1,4 @@
-pragma solidity ^0.6.9;
+pragma solidity ^0.7.0;
 
 // Time lock benchmark contract.
 // Describes a time lock mechanism inspired by Timelock.sol in the Compound DeFi application.
@@ -18,16 +18,18 @@ contract TimeLock {
         bytes data;
     }
     // Minimum locking period, arbitrarily set to one day
-    uint ONE_DAY = 4320; // 60*60*24/20
+    // 7200*24 = 172800
+    uint public constant ONE_DAY = 172800;
 
     // Transaction queue
     mapping (bytes32 => LockedTx) private queuedTx;
 
     // Signal emitted when a transaction needs to be executed
-    signal TimesUp(bytes32 tx_hash);
+    signal TimesUp(bytes32);
 
-    // Slot that does the executing
-    slot TxExecutor(bytes32 tx_hash) {
+    // Handler for executing tx
+    handler ExecuteTx(bytes32);
+    function execute_tx(bytes32 tx_hash) public {
         // Check for cancellation
         require(queuedTx[tx_hash].target != address(0), "This transaction execution has been cancelled");
         
@@ -50,11 +52,6 @@ contract TimeLock {
         require(success, "Timelock::executeTransaction: Transaction execution reverted.");
     }
 
-    // Constructor
-    constructor() public {
-        TxExecutor.bind(TimesUp);
-    }
-
     // Queue a transaction
     function queueTransaction(address target, uint value, string memory signature, 
                               bytes memory data, uint buffer_len) public {
@@ -67,7 +64,7 @@ contract TimeLock {
         queuedTx[txHash] = new_tx;
 
         // Emit a signal for delayed execution of this transaction
-        emitsig TimesUp(txHash).delay(buffer_len);
+        TimesUp.emit(txHash).delay(buffer_len);
     }
 
     // Cancel a queued transaction
@@ -75,5 +72,13 @@ contract TimeLock {
         // Delete the transaction off of the queue
         bytes32 txHash = keccak256(abi.encode(target, value, signature, data));
         delete queuedTx[txHash];
+    }
+
+    // Constructor
+    constructor() {
+        TimesUp.create_signal();
+        ExecuteTx.create_handler("execute_tx(bytes32)", 100000000, 120);
+        address this_address = address(this);
+        ExecuteTx.bind(this_address, "TimesUp(bytes32)");
     }
 }
